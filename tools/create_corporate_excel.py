@@ -129,18 +129,29 @@ def build_sheet_input(activities_count: int):
         make_cell(row, f"C{rr}", '', formula=f'IF(A{rr}="","",XLOOKUP(A{rr},CATALOGOS!$A$2:$A$500,CATALOGOS!$D$2:$D$500,""))')
         make_cell(row, f"D{rr}", '', formula=f'IF(A{rr}="","",SUMIFS($O$5:$O$504,$F$5:$F$504,A{rr},$S$5:$S$504,"OK"))')
 
-    # validations (formula1/formula2 must be child nodes, not attributes)
+    # protect sheet (password: somatec)
+    sub(ws, 'sheetProtection', {
+        'sheet':'1','objects':'1','scenarios':'1','formatCells':'0','formatColumns':'0','formatRows':'0',
+        'insertColumns':'0','insertRows':'0','insertHyperlinks':'0','deleteColumns':'0','deleteRows':'0',
+        'selectLockedCells':'1','sort':'0','autoFilter':'0','pivotTables':'0','password':excel_password_hash('somatec')
+    })
+
+    merge = sub(ws, 'mergeCells', {'count':'2'})
+    sub(merge, 'mergeCell', {'ref':'A1:S1'})
+    sub(merge, 'mergeCell', {'ref':'A2:S2'})
+
+    # validations (formula1/formula2 as child nodes, and placed after mergeCells)
     dvs = sub(ws, 'dataValidations', {'count': '8'})
     dv = sub(dvs, 'dataValidation', {'type':'date','sqref':'B5:B504','allowBlank':'1','operator':'between'})
     sub(dv, 'formula1', text='DATE(2024,1,1)')
     sub(dv, 'formula2', text='DATE(2035,12,31)')
 
     dv = sub(dvs, 'dataValidation', {'type':'list','sqref':'C5:C504','allowBlank':'0'})
-    sub(dv, 'formula1', text='CATALOGOS!$G$2:$G$500')
+    sub(dv, 'formula1', text='=CATALOGOS!$G$2:$G$500')
     dv = sub(dvs, 'dataValidation', {'type':'list','sqref':'D5:D504','allowBlank':'0'})
-    sub(dv, 'formula1', text='CATALOGOS!$H$2:$H$500')
+    sub(dv, 'formula1', text='=CATALOGOS!$H$2:$H$500')
     dv = sub(dvs, 'dataValidation', {'type':'list','sqref':'F5:F504','allowBlank':'0'})
-    sub(dv, 'formula1', text='CATALOGOS!$A$2:$A$500')
+    sub(dv, 'formula1', text='=CATALOGOS!$A$2:$A$500')
     dv = sub(dvs, 'dataValidation', {'type':'decimal','sqref':'J5:N504','allowBlank':'1','operator':'greaterThanOrEqual'})
     sub(dv, 'formula1', text='0')
     dv = sub(dvs, 'dataValidation', {'type':'list','sqref':'P5:P504','allowBlank':'0'})
@@ -149,17 +160,6 @@ def build_sheet_input(activities_count: int):
     sub(dv, 'formula1', text='255')
     dv = sub(dvs, 'dataValidation', {'type':'textLength','sqref':'R5:R504','allowBlank':'1','operator':'lessThanOrEqual'})
     sub(dv, 'formula1', text='255')
-
-    merge = sub(ws, 'mergeCells', {'count':'2'})
-    sub(merge, 'mergeCell', {'ref':'A1:S1'})
-    sub(merge, 'mergeCell', {'ref':'A2:S2'})
-
-    # protect sheet (password: somatec)
-    sub(ws, 'sheetProtection', {
-        'sheet':'1','objects':'1','scenarios':'1','formatCells':'0','formatColumns':'0','formatRows':'0',
-        'insertColumns':'0','insertRows':'0','insertHyperlinks':'0','deleteColumns':'0','deleteRows':'0',
-        'selectLockedCells':'1','sort':'0','autoFilter':'0','pivotTables':'0','password':excel_password_hash('somatec')
-    })
     return ET.tostring(ws, encoding='utf-8', xml_declaration=True)
 
 
