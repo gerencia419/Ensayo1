@@ -95,10 +95,10 @@ def build_sheet_input(activities_count: int):
             make_cell(row, f"{col(cc)}{rr}", '')
 
         make_cell(row, f"A{rr}", '', formula=f'IF(F{rr}="","",TEXT(B{rr},"yyyymmdd")&"-"&LEFT(C{rr},4)&"-"&LEFT(D{rr},4)&"-"&F{rr}&"-{rr}")')
-        make_cell(row, f"G{rr}", '', formula=f'IF(F{rr}="","",IFERROR(XLOOKUP(F{rr},CATALOGOS!$A$2:$A$500,CATALOGOS!$B$2:$B$500,"CODIGO_INVALIDO"),"CODIGO_INVALIDO"))')
-        make_cell(row, f"H{rr}", '', formula=f'IF(F{rr}="","",IFERROR(XLOOKUP(F{rr},CATALOGOS!$A$2:$A$500,CATALOGOS!$C$2:$C$500,""),""))')
-        make_cell(row, f"I{rr}", '', formula=f'IF(F{rr}="","",IFERROR(XLOOKUP(F{rr},CATALOGOS!$A$2:$A$500,CATALOGOS!$D$2:$D$500,""),""))')
-        make_cell(row, f"N{rr}", '', formula=f'IF(F{rr}="","",IFERROR(XLOOKUP(F{rr},CATALOGOS!$A$2:$A$500,CATALOGOS!$E$2:$E$500,1),1))')
+        make_cell(row, f"G{rr}", '', formula=f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$B$2:$B$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),"CODIGO_INVALIDO"))')
+        make_cell(row, f"H{rr}", '', formula=f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$C$2:$C$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),""))')
+        make_cell(row, f"I{rr}", '', formula=f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$D$2:$D$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),""))')
+        make_cell(row, f"N{rr}", '', formula=f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$E$2:$E$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),1))')
         make_cell(row, f"O{rr}", '', formula=(
             f'IF(F{rr}="","",IF(H{rr}="AREA_2D",ROUND(J{rr}*K{rr}*N{rr},4),'
             f'IF(H{rr}="VOLUMEN_3D",ROUND(J{rr}*K{rr}*L{rr}*N{rr},4),'
@@ -125,8 +125,8 @@ def build_sheet_input(activities_count: int):
         rr = 509 + i
         row = sub(sheet_data, 'row', {'r': str(rr)})
         make_cell(row, f"A{rr}", '', formula=f'IF(CATALOGOS!A{i+2}="","",CATALOGOS!A{i+2})')
-        make_cell(row, f"B{rr}", '', formula=f'IF(A{rr}="","",XLOOKUP(A{rr},CATALOGOS!$A$2:$A$500,CATALOGOS!$B$2:$B$500,""))')
-        make_cell(row, f"C{rr}", '', formula=f'IF(A{rr}="","",XLOOKUP(A{rr},CATALOGOS!$A$2:$A$500,CATALOGOS!$D$2:$D$500,""))')
+        make_cell(row, f"B{rr}", '', formula=f'IF(A{rr}="","",IFERROR(INDEX(CATALOGOS!$B$2:$B$500,MATCH(A{rr},CATALOGOS!$A$2:$A$500,0)),""))')
+        make_cell(row, f"C{rr}", '', formula=f'IF(A{rr}="","",IFERROR(INDEX(CATALOGOS!$D$2:$D$500,MATCH(A{rr},CATALOGOS!$A$2:$A$500,0)),""))')
         make_cell(row, f"D{rr}", '', formula=f'IF(A{rr}="","",SUMIFS($O$5:$O$504,$F$5:$F$504,A{rr},$S$5:$S$504,"OK"))')
 
     # protect sheet (password: somatec)
