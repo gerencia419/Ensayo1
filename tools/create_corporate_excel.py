@@ -15,6 +15,15 @@ NS_REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 ET.register_namespace('', NS_MAIN)
 ET.register_namespace('r', NS_REL)
 
+STYLE_DEFAULT = '0'
+STYLE_UNLOCKED = '1'
+STYLE_TITLE = '2'
+STYLE_SUBTITLE = '3'
+STYLE_HEADER = '4'
+STYLE_SECTION = '5'
+STYLE_LOCKED_CALC = '6'
+STYLE_INPUT = '7'
+
 
 def excel_password_hash(password: str) -> str:
     password = password[:15]
@@ -92,14 +101,14 @@ def build_sheet_input(activities_count: int):
     sheet_data = sub(ws, 'sheetData')
 
     r1 = sub(sheet_data, 'row', {'r': '1'})
-    make_cell(r1, 'A1', 'Plantilla de Memorias Somatec (MVP corporativo)')
+    make_cell(r1, 'A1', 'Plantilla de Memorias Somatec (MVP corporativo)', style=STYLE_TITLE)
     r2 = sub(sheet_data, 'row', {'r': '2'})
-    make_cell(r2, 'A2', 'Diligenciar solo celdas de captura. No alterar fórmulas ni estructura.')
+    make_cell(r2, 'A2', 'Diligenciar solo celdas de captura. No alterar fórmulas ni estructura.', style=STYLE_SUBTITLE)
 
     headers = read_csv(TEMPLATES / 'plantilla_memorias_input.csv')[0]
     r4 = sub(sheet_data, 'row', {'r': '4'})
     for i, h in enumerate(headers, start=1):
-        make_cell(r4, f"{col(i)}4", h)
+        make_cell(r4, f"{col(i)}4", h, style=STYLE_HEADER)
 
     editable_cols = {2, 3, 4, 5, 6, 10, 11, 12, 13, 16, 17, 18}
 
@@ -108,20 +117,20 @@ def build_sheet_input(activities_count: int):
         cells: dict[int, dict] = {}
 
         for cc in editable_cols:
-            cells[cc] = {'value': '', 'style': '1'}  # unlocked style
+            cells[cc] = {'value': '', 'style': STYLE_INPUT}  # unlocked data-entry
 
-        cells[1] = {'formula': f'IF(F{rr}="","",TEXT(B{rr},"yyyymmdd")&"-"&LEFT(C{rr},4)&"-"&LEFT(D{rr},4)&"-"&F{rr}&"-{rr}")'}
-        cells[7] = {'formula': f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$B$2:$B$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),"CODIGO_INVALIDO"))'}
-        cells[8] = {'formula': f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$C$2:$C$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),""))'}
-        cells[9] = {'formula': f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$D$2:$D$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),""))'}
-        cells[14] = {'formula': f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$E$2:$E$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),1))'}
-        cells[15] = {'formula': (
+        cells[1] = {'style': STYLE_LOCKED_CALC, 'formula': f'IF(F{rr}="","",TEXT(B{rr},"yyyymmdd")&"-"&LEFT(C{rr},4)&"-"&LEFT(D{rr},4)&"-"&F{rr}&"-{rr}")'}
+        cells[7] = {'style': STYLE_LOCKED_CALC, 'formula': f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$B$2:$B$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),"CODIGO_INVALIDO"))'}
+        cells[8] = {'style': STYLE_LOCKED_CALC, 'formula': f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$C$2:$C$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),""))'}
+        cells[9] = {'style': STYLE_LOCKED_CALC, 'formula': f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$D$2:$D$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),""))'}
+        cells[14] = {'style': STYLE_LOCKED_CALC, 'formula': f'IF(F{rr}="","",IFERROR(INDEX(CATALOGOS!$E$2:$E$500,MATCH(F{rr},CATALOGOS!$A$2:$A$500,0)),1))'}
+        cells[15] = {'style': STYLE_LOCKED_CALC, 'formula': (
             f'IF(F{rr}="","",IF(H{rr}="AREA_2D",ROUND(J{rr}*K{rr}*N{rr},4),'
             f'IF(H{rr}="VOLUMEN_3D",ROUND(J{rr}*K{rr}*L{rr}*N{rr},4),'
             f'IF(H{rr}="LINEAL_1D",ROUND(J{rr}*N{rr},4),'
             f'IF(H{rr}="CONTEO",ROUND(M{rr}*N{rr},4),"TIPO_INVALIDO")))))'
         )}
-        cells[19] = {'formula': (
+        cells[19] = {'style': STYLE_LOCKED_CALC, 'formula': (
             f'IF(F{rr}="","",IF(OR(C{rr}="",D{rr}="",B{rr}=""),"ERROR_CABECERA",'
             f'IF(G{rr}="CODIGO_INVALIDO","ERROR_CODIGO",IF(P{rr}="NO","BLOQUEADO_SIN_SOPORTE",'
             f'IF(AND(H{rr}="AREA_2D",OR(J{rr}<=0,K{rr}<=0)),"ERROR_DIMENSION",'
@@ -133,19 +142,19 @@ def build_sheet_input(activities_count: int):
         write_row_cells_sorted(row, rr, cells)
 
     r507 = sub(sheet_data, 'row', {'r': '507'})
-    make_cell(r507, 'A507', 'RESUMEN DE CORTE (solo filas OK)')
+    make_cell(r507, 'A507', 'RESUMEN DE CORTE (solo filas OK)', style=STYLE_SECTION)
     r508 = sub(sheet_data, 'row', {'r': '508'})
     for i, h in enumerate(['Código', 'Actividad', 'Unidad', 'Cantidad corte'], start=1):
-        make_cell(r508, f"{col(i)}508", h)
+        make_cell(r508, f"{col(i)}508", h, style=STYLE_HEADER)
 
     for i in range(activities_count):
         rr = 509 + i
         row = sub(sheet_data, 'row', {'r': str(rr)})
         cells = {
-            1: {'formula': f'IF(CATALOGOS!A{i+2}="","",CATALOGOS!A{i+2})'},
-            2: {'formula': f'IF(A{rr}="","",IFERROR(INDEX(CATALOGOS!$B$2:$B$500,MATCH(A{rr},CATALOGOS!$A$2:$A$500,0)),""))'},
-            3: {'formula': f'IF(A{rr}="","",IFERROR(INDEX(CATALOGOS!$D$2:$D$500,MATCH(A{rr},CATALOGOS!$A$2:$A$500,0)),""))'},
-            4: {'formula': f'IF(A{rr}="","",SUMIFS($O$5:$O$504,$F$5:$F$504,A{rr},$S$5:$S$504,"OK"))'},
+            1: {'style': STYLE_LOCKED_CALC, 'formula': f'IF(CATALOGOS!A{i+2}="","",CATALOGOS!A{i+2})'},
+            2: {'style': STYLE_LOCKED_CALC, 'formula': f'IF(A{rr}="","",IFERROR(INDEX(CATALOGOS!$B$2:$B$500,MATCH(A{rr},CATALOGOS!$A$2:$A$500,0)),""))'},
+            3: {'style': STYLE_LOCKED_CALC, 'formula': f'IF(A{rr}="","",IFERROR(INDEX(CATALOGOS!$D$2:$D$500,MATCH(A{rr},CATALOGOS!$A$2:$A$500,0)),""))'},
+            4: {'style': STYLE_LOCKED_CALC, 'formula': f'IF(A{rr}="","",SUMIFS($O$5:$O$504,$F$5:$F$504,A{rr},$S$5:$S$504,"OK"))'},
         }
         write_row_cells_sorted(row, rr, cells)
 
@@ -206,11 +215,11 @@ def build_sheet_catalogs():
     for r, row_values in enumerate(activities, start=1):
         row = get_row(r)
         for c, val in enumerate(row_values, start=1):
-            make_cell(row, f"{col(c)}{r}", val)
+            make_cell(row, f"{col(c)}{r}", val, style=STYLE_HEADER if r == 1 else STYLE_DEFAULT)
 
     row = get_row(1)
-    make_cell(row, 'G1', 'obras')
-    make_cell(row, 'H1', 'contratistas')
+    make_cell(row, 'G1', 'obras', style=STYLE_HEADER)
+    make_cell(row, 'H1', 'contratistas', style=STYLE_HEADER)
 
     for i, vals in enumerate(obras[1:], start=2):
         row = get_row(i)
@@ -239,7 +248,7 @@ def build_sheet_instructivo():
     ]
     for i, txt in enumerate(lines, start=1):
         row = sub(sheet_data, 'row', {'r': str(i)})
-        make_cell(row, f'A{i}', txt)
+        make_cell(row, f'A{i}', txt, style=STYLE_SECTION if i == 1 else STYLE_SUBTITLE)
 
     sub(ws, 'sheetProtection', {'sheet': '1', 'objects': '1', 'scenarios': '1', 'password': excel_password_hash('somatec')})
     return ET.tostring(ws, encoding='utf-8', xml_declaration=True)
@@ -259,13 +268,33 @@ def workbook_xml():
 def styles_xml():
     return b'''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-  <fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>
-  <fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
-  <borders count="1"><border/></borders>
+  <fonts count="4">
+    <font><sz val="11"/><name val="Calibri"/></font>
+    <font><b/><sz val="12"/><name val="Calibri"/></font>
+    <font><b/><color rgb="FFFFFFFF"/><sz val="12"/><name val="Calibri"/></font>
+    <font><i/><color rgb="FF404040"/><sz val="10"/><name val="Calibri"/></font>
+  </fonts>
+  <fills count="5">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FF1F7A4C"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FF2F2F2F"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFEFF4F2"/><bgColor indexed="64"/></patternFill></fill>
+  </fills>
+  <borders count="2">
+    <border/>
+    <border><left style="thin"/><right style="thin"/><top style="thin"/><bottom style="thin"/></border>
+  </borders>
   <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-  <cellXfs count="2">
+  <cellXfs count="8">
     <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
     <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyProtection="1"><protection locked="0"/></xf>
+    <xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFill="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+    <xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFill="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf>
+    <xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFill="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+    <xf numFmtId="0" fontId="1" fillId="4" borderId="1" xfId="0" applyFill="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="4" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyProtection="1"><protection locked="0"/></xf>
   </cellXfs>
   <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
 </styleSheet>'''
