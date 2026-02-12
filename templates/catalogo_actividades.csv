@@ -1,0 +1,26 @@
+codigo,actividad,tipo_medicion,unidad,factor
+PREL-001,Replanteo y trazado,AREA_2D,m2,1.00
+PREL-002,Demolición de piso,AREA_2D,m2,1.00
+EXCA-010,Excavación manual,VOLUMEN_3D,m3,1.00
+EXCA-011,Excavación mecánica,VOLUMEN_3D,m3,1.00
+RELL-020,Relleno compactado,VOLUMEN_3D,m3,1.08
+CONC-030,Concreto de limpieza,VOLUMEN_3D,m3,1.00
+CONC-031,Concreto estructural,VOLUMEN_3D,m3,1.00
+ACER-040,Acero de refuerzo instalado,CONTEO,kg,1.00
+MAMP-050,Mampostería en bloque,AREA_2D,m2,1.00
+PAÑE-060,Pañete de muros,AREA_2D,m2,1.05
+ENCH-070,Enchape de muro cerámico,AREA_2D,m2,1.03
+PISO-071,Enchape de piso porcelanato,AREA_2D,m2,1.05
+PINT-080,Pintura vinilo en muros,AREA_2D,m2,1.00
+YESO-081,Cielo raso en drywall,AREA_2D,m2,1.00
+IMPE-090,Impermeabilización de placa,AREA_2D,m2,1.00
+TUBH-100,Tubería hidráulica,LINEAL_1D,ml,1.00
+TUBS-101,Tubería sanitaria,LINEAL_1D,ml,1.00
+CABL-110,Cableado eléctrico,LINEAL_1D,ml,1.00
+DUCT-111,Ductería EMT/PVC,LINEAL_1D,ml,1.00
+APAR-120,Instalación de aparato sanitario,CONTEO,und,1.00
+PTEE-121,Punto eléctrico,CONTEO,und,1.00
+LUMI-122,Luminaria instalada,CONTEO,und,1.00
+PUE-130,Puerta instalada,CONTEO,und,1.00
+VENT-131,Ventana instalada,CONTEO,und,1.00
+GUAR-140,Guardaescoba / zócalo,LINEAL_1D,ml,1.00
